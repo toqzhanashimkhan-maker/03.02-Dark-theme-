@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Dual Theme</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@700&display=swap');
+
+        :root {
+            --bg-body: #3a4663;
+            --bg-calc: #242d44;
+            --bg-screen: #181f33;
+            --btn-main: #eae3dc;
+            --btn-main-shadow: #b3a497;
+            --btn-blue: #647198;
+            --btn-blue-shadow: #414e73;
+            --btn-red: #d03f2f;
+            --btn-red-shadow: #93261a;
+            --text-main: #ffffff;
+            --text-keys: #434a59;
+        }
+
+[data-theme="2"] {
+            --bg-body: #f1f5f9; 
+            --bg-calc: #e2e8f0; 
+            --bg-screen: #ffffff;
+            --btn-main: #ccf2f4; 
+            --btn-main-shadow: #a4d8db;
+            --btn-blue: #ddd6fe; 
+            --btn-blue-shadow: #c4b5fd;
+            --btn-red: #fbcfe8; 
+            --btn-red-shadow: #f9a8d4;
+            --text-main: #475569; 
+            --text-keys: #475569;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'League Spartan', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--bg-body);
+            transition: background 0.3s;
+        }
+
+        .calculator {
+            width: 380px;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            color: var(--text-main);
+            margin-bottom: 25px;
+        }
+
+        .display {
+            height: 90px;
+            color: var(--text-main);
+            font-size: 42px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 20px;
+            background-color: var(--bg-screen);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            background-color: var(--bg-calc);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        button {
+            height: 60px;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            background-color: var(--btn-main);
+            color: var(--text-keys);
+            border-radius: 8px;
+            box-shadow: 0 4px var(--btn-main-shadow);
+        }
+
+        .c-btn, .del-btn {
+            background-color: var(--btn-blue);
+            color: white;
+            box-shadow: 0 4px var(--btn-blue-shadow);
+            font-size: 18px;
+            text-transform: uppercase;
+        }
+
+        .equal-btn {
+            background-color: var(--btn-red);
+            color: white;
+            box-shadow: 0 4px var(--btn-red-shadow);
+        }
+
+        .span-2 { grid-column: span 2; }
+
+        button:active { transform: translateY(2px); box-shadow: none; }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+        }
+
+        .toggle-box {
+            width: 45px;
+            height: 20px;
+            background: var(--bg-calc);
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .toggle-circle {
+            width: 12px;
+            height: 12px;
+            background: var(--btn-red);
+            border-radius: 50%;
+            position: absolute;
+            top: 4px;
+            left: 5px;
+            transition: 0.2s;
+        }
+    </style>
+</head>
+<body data-theme="1">
+
+    <div class="calculator">
+        <div class="header">
+            <h3>calc</h3>
+            <div class="theme-toggle">
+                <span>THEME</span>
+                <div class="toggle-box" onclick="toggleTheme()">
+                    <div class="toggle-circle" id="circle"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="display" id="screen">0</div>
+        
+        <div class="grid">
+            <button>7</button><button>8</button><button>9</button><button class="del-btn">del</button>
+            <button>4</button><button>5</button><button>6</button><button>+</button>
+            <button>1</button><button>2</button><button>3</button><button>-</button>
+            <button>.</button><button>0</button><button>/</button><button>×</button>
+            <button class="c-btn span-2">Reset</button>
+            <button class="equal-btn span-2">=</button>
+        </div>
+    </div>
+
+<script>
+    const screen = document.getElementById('screen');
+    const buttons = document.querySelectorAll('.grid button');
+    
+    let currentNumber = '0';
+    let prevNumber = '';
+    let operator = null;
+
+    buttons.forEach(btn => {
+        btn.onclick = () => {
+            const val = btn.innerText;
+
+            if (!isNaN(val) || val === '.') {
+                if (val === '.' && currentNumber.includes('.')) return;
+
+                if (currentNumber === '0' && val !== '.') {
+                    currentNumber = val;
+                } else {
+                    currentNumber += val;
+                }
+            } 
+            else if (val.toLowerCase() === 'reset') { 
+                currentNumber = '0';
+                prevNumber = '';
+                operator = null;
+            } 
+            else if (val.toLowerCase() === 'del') { 
+                if (currentNumber.length > 1) {
+                    currentNumber = currentNumber.slice(0, -1);
+                } else {
+                    currentNumber = '0';
+                }
+            } 
+            else if (val === '=') {
+                let a = parseFloat(prevNumber);
+                let b = parseFloat(currentNumber);
+                if (operator === '+') currentNumber = (a + b).toString();
+                if (operator === '-') currentNumber = (a - b).toString();
+                if (operator === '×') currentNumber = (a * b).toString();
+                if (operator === '/') currentNumber = (a / b).toString();
+                operator = null;
+            } 
+            else {
+                if (val === "") return;
+                operator = val;
+                prevNumber = currentNumber;
+                currentNumber = '0';
+            }
+
+            screen.innerText = currentNumber;
+        };
+    });
+
+    let t = 1;
+    function toggleTheme() {
+        
+        t = (t === 1) ? 2 : 1;
+        document.body.setAttribute('data-theme', t);
+        document.getElementById('circle').style.left = (t === 1 ? '5px' : '28px');
+    }
+</script>
+
+</body>
+</html>
